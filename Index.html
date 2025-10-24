@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StreetStyle by Juan Andrés</title>
+  <style>
+    body {
+      font-family: system-ui;
+      background-color: #2B2B2B;
+      color: #0077B6;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #F5F5F5;
+    }
+
+    .producto {
+      border: 1px solid #ccc;
+      background: black;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 10px;
+      display: inline-block;
+      width: 220px;
+      vertical-align: top;
+    }
+
+    .producto img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .producto button,
+    .carrito button {
+      background-color: #28a745;
+      border: none;
+      color: black;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .carrito {
+      margin-top: 30px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 8px;
+      text-align: left;
+      display: inline-block;
+    }
+
+    .carrito button.vaciar {
+      background-color: #dc3545;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>StreetStyle by Juan Andrés</h1>
+
+  <div id="productos"></div>
+
+  <div class="carrito">
+    <h2>🧾 Carrito de Compras</h2>
+    <ul id="lista-carrito"></ul>
+    <p><strong>Total: $<span id="total">0.00</span></strong></p>
+    <button class="vaciar" onclick="vaciarCarrito()">🧼 Vaciar Carrito</button>
+  </div>
+
+  <script>
+    const productos = [
+      {
+        id: 1,
+        nombre: "Hoodie “Black Street”",
+        categoria: "Hoodies",
+        precio: 120000,
+        imagen: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwHyZ_WjTWaXXnjq7RwJi0YECwG71YZRuUyw&s"
+      },
+      {
+        id: 2,
+        nombre: "Hoodie “Retro Gray”",
+        categoria: "Hoodies",
+        precio: 115000,
+        imagen: "https://cdn.shopify.com/s/files/1/0652/5832/4180/files/oooo.jpg?v=1714046923"
+      },
+      {
+        id: 3,
+        nombre: "Gorra “NYC Flat”",
+        categoria: "Gorras",
+        precio: 75000,
+        imagen: "https://static.caphunters.mt/42734-large_default/new-era-flat-brim-black-logo-9fifty-league-essential-new-york-yankees-mlb-beige-snapback-cap.webp"
+      },
+      {
+        id: 4,
+        nombre: "Gorra “Classic White”",
+        categoria: "Gorras",
+        precio: 70000,
+        imagen: "https://libur.com.co/cdn/shop/files/2_4c2209d8-b5eb-4a27-b924-9d1b2cb50c58.png?v=1760486044&width=600"
+      },
+      {
+        id: 5,
+        nombre: "Buso Oversize “Storm”",
+        categoria: "Busos oversize",
+        precio: 95000,
+        imagen: "https://vintcompany.com/cdn/shop/files/34_1800x.jpg?v=1726973276"
+      },
+      {
+        id: 6,
+        nombre: "Buso Oversize “Skyline”",
+        categoria: "Busos oversize",
+        precio: 99000,
+        imagen: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXQb1eNlckUwf9xu0JO1PWRWRtrOoag4kXrQ&s"
+      }
+    ];
+
+    const carrito = [];
+
+    const contenedorProductos = document.getElementById("productos");
+    const listaCarrito = document.getElementById("lista-carrito");
+    const totalCarrito = document.getElementById("total");
+
+    function mostrarProductos() {
+      productos.forEach((prod) => {
+        const div = document.createElement("div");
+        div.className = "producto";
+        div.innerHTML = `
+          <img src="${prod.imagen || 'https://via.placeholder.com/220x200?text=Imagen+pendiente'}" alt="${prod.nombre}">
+          <h3>${prod.nombre}</h3>
+          <p><em>${prod.categoria}</em></p>
+          <p><strong>$${prod.precio.toLocaleString('es-CO')} COP</strong></p>
+          <button onclick="agregarAlCarrito(${prod.id})">Agregar al carrito</button>
+        `;
+        contenedorProductos.appendChild(div);
+      });
+    }
+
+    function agregarAlCarrito(id) {
+      const productoExistente = carrito.find((p) => p.id === id);
+      if (productoExistente) {
+        productoExistente.cantidad++;
+      } else {
+        const producto = productos.find((p) => p.id === id);
+        carrito.push({ ...producto, cantidad: 1 });
+      }
+      actualizarCarrito();
+    }
+
+    function actualizarCarrito() {
+      listaCarrito.innerHTML = "";
+      let total = 0;
+      let totalItems = 0;
+
+      carrito.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = `${item.nombre} x${item.cantidad} - $${(item.precio * item.cantidad).toLocaleString('es-CO')} COP`;
+        listaCarrito.appendChild(li);
+        total += item.precio * item.cantidad;
+        totalItems += item.cantidad;
+      });
+
+      totalCarrito.textContent = total.toLocaleString('es-CO');
+      actualizarTituloCarrito(totalItems);
+    }
+
+    function actualizarTituloCarrito(cantidad) {
+      const titulo = document.querySelector(".carrito h2");
+      titulo.textContent = `🧾 Carrito de Compras (${cantidad})`;
+    }
+
+    function vaciarCarrito() {
+      if (confirm("¿Estás seguro de que quieres vaciar el carrito?")) {
+        carrito.length = 0;
+        actualizarCarrito();
+      }
+    }
+
+    function finalizarCompra() {
+      if (carrito.length === 0) {
+        alert("El carrito está vacío. Agrega productos antes de finalizar la compra.");
+        return;
+      }
+
+      alert("🎉 ¡Gracias por tu compra! En breve recibirás un correo de confirmación.");
+      carrito.length = 0;
+      actualizarCarrito();
+    }
+
+    const botonFinalizar = document.createElement("button");
+    botonFinalizar.textContent = "✅ Finalizar Compra";
+    botonFinalizar.style.backgroundColor = "#007bff";
+    botonFinalizar.style.marginTop = "10px";
+    botonFinalizar.style.color = "white";
+    botonFinalizar.style.padding = "8px";
+    botonFinalizar.style.borderRadius = "4px";
+    botonFinalizar.style.border = "none";
+    botonFinalizar.onclick = finalizarCompra;
+
+    document.querySelector(".carrito").appendChild(botonFinalizar);
+
+    mostrarProductos();
+  </script>
+</body>
+</html>
